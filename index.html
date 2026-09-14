@@ -35,6 +35,27 @@
       position: relative;
     }
 
+    /* BOTÓN FLOTANTE DE MÚSICA */
+    .music-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 100;
+      background: rgba(18, 7, 43, 0.8);
+      border: 1px solid rgba(199, 125, 255, 0.4);
+      color: #e0aaff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+      backdrop-filter: blur(5px);
+    }
+
     /* PANTALLA DE BIENVENIDA (CARTA/SOBRE) */
     .welcome-screen {
       position: absolute;
@@ -298,8 +319,13 @@
 </head>
 <body>
 
-  <!-- ELEMENTO DE AUDIO MEJORADO -->
-  <audio id="bgMusic" loop playsinline preload="auto" src="musica.mp3"></audio>
+  <!-- ELEMENTO DE AUDIO DE FONDO -->
+  <audio id="bgMusic" loop playsinline preload="auto">
+    <source src="musica.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- BOTÓN FLOTANTE PARA ACTIVAR/PAUSAR MÚSICA -->
+  <button class="music-toggle" id="musicToggle" title="Activar/Desactivar Música">🎵</button>
 
   <div class="container">
 
@@ -461,17 +487,34 @@ te quiero mucho crismerli 💜</p>
     const welcomeScreen = document.getElementById('welcomeScreen');
     const bgMusic = document.getElementById('bgMusic');
     const btnStart = document.getElementById('btnStart');
+    const musicToggle = document.getElementById('musicToggle');
+    let isPlaying = false;
 
-    // Evento de clic directo para desinhibir el reproductor en iOS/Android
+    function playAudio() {
+      if (bgMusic) {
+        bgMusic.play().then(() => {
+          isPlaying = true;
+          musicToggle.textContent = '🔊';
+        }).catch(err => {
+          console.log("Error al reproducir audio:", err);
+          isPlaying = false;
+          musicToggle.textContent = '🔇';
+        });
+      }
+    }
+
     btnStart.addEventListener('click', function() {
       welcomeScreen.classList.add('hidden');
-      if (bgMusic) {
-        bgMusic.volume = 0.8; // Ajustar volumen al 80%
-        bgMusic.play().then(() => {
-          console.log("Audio reproduciéndose con éxito.");
-        }).catch(err => {
-          console.log("Error de reproducción de audio:", err);
-        });
+      playAudio();
+    });
+
+    musicToggle.addEventListener('click', function() {
+      if (isPlaying) {
+        bgMusic.pause();
+        isPlaying = false;
+        musicToggle.textContent = '🔇';
+      } else {
+        playAudio();
       }
     });
 
