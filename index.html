@@ -129,10 +129,18 @@
       text-shadow: 0 0 10px rgba(199, 125, 255, 0.4);
     }
 
+    .header-sub {
+      font-size: 0.95rem;
+      color: #e0aaff;
+      font-weight: 600;
+      margin-top: 3px;
+      font-style: italic;
+    }
+
     .progress-bar-text {
       font-size: 0.8rem;
       color: #9d4edd;
-      margin-top: 4px;
+      margin-top: 6px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -290,27 +298,35 @@
 </head>
 <body>
 
+  <!-- ELEMENTO DE AUDIO DE FONDO -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="musica.mp3" type="audio/mpeg">
+    <source src="musica.mp4" type="audio/mp4">
+  </audio>
+
   <div class="container">
 
+    <!-- PANTALLA INICIAL DE LA CARTA -->
     <div class="welcome-screen" id="welcomeScreen">
       <div class="envelope-card">
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
-        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que veas un poquito de lo que significa para mi usted mi amor </p>
-        <button class="btn-start" onclick="startExperience()"> Dale cuando estes solita disfruta ✨</button>
+        <p class="welcome-sub">Preparé este pequeño detalle para ti, para recordar algunos de los momentos más especiales que hemos compartido.</p>
+        <button class="btn-start" onclick="startExperience()">Abrir nuestra carta ✨</button>
       </div>
     </div>
     
     <div class="header">
       <h1>Nuestra Historia 💜</h1>
-      <div class="progress-bar-text" id="counter">Tarjeta 1 de 9</div>
+      <div class="header-sub">La vida es una mi amor</div>
+      <div class="progress-bar-text" id="counter">Tarjeta 1 de 10</div>
     </div>
 
     <div class="cards-wrapper">
 
       <div class="card active">
-        <video id="v1" autoplay loop muted playsinline controls>
-          <source src="WhatsApp Video 2026-09-13 at 10.39.59 PM.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline controls>
+          <source src="video1.mp4" type="video/mp4">
         </video>
         <div class="card-content">
           <span class="card-tag">Momento I</span>
@@ -323,7 +339,7 @@
 
       <div class="card">
         <video autoplay loop muted playsinline controls>
-          <source src="WhatsApp Video 2026-09-13 at 10.40.00 PM.mp4" type="video/mp4">
+          <source src="video2.mp4" type="video/mp4">
         </video>
         <div class="card-content">
           <span class="card-tag">Momento II</span>
@@ -446,9 +462,13 @@ te quiero mucho crismerli 💜</p>
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const welcomeScreen = document.getElementById('welcomeScreen');
+    const bgMusic = document.getElementById('bgMusic');
 
     function startExperience() {
       welcomeScreen.classList.add('hidden');
+      if (bgMusic) {
+        bgMusic.play().catch(e => console.log("Audio play error:", e));
+      }
     }
 
     function updateView() {
