@@ -298,11 +298,8 @@
 </head>
 <body>
 
-  <!-- ELEMENTO DE AUDIO DE FONDO -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="musica.mp3" type="audio/mpeg">
-    <source src="musica.mp4" type="audio/mp4">
-  </audio>
+  <!-- ELEMENTO DE AUDIO MEJORADO -->
+  <audio id="bgMusic" loop playsinline preload="auto" src="musica.mp3"></audio>
 
   <div class="container">
 
@@ -312,7 +309,7 @@
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
         <p class="welcome-sub">Preparé este pequeño detalle para ti, para recordar algunos de los momentos más especiales que hemos compartido.</p>
-        <button class="btn-start" onclick="startExperience()">Abrir nuestra carta ✨</button>
+        <button class="btn-start" id="btnStart">Abrir nuestra carta ✨</button>
       </div>
     </div>
     
@@ -463,13 +460,20 @@ te quiero mucho crismerli 💜</p>
     const nextBtn = document.getElementById('nextBtn');
     const welcomeScreen = document.getElementById('welcomeScreen');
     const bgMusic = document.getElementById('bgMusic');
+    const btnStart = document.getElementById('btnStart');
 
-    function startExperience() {
+    // Evento de clic directo para desinhibir el reproductor en iOS/Android
+    btnStart.addEventListener('click', function() {
       welcomeScreen.classList.add('hidden');
       if (bgMusic) {
-        bgMusic.play().catch(e => console.log("Audio play error:", e));
+        bgMusic.volume = 0.8; // Ajustar volumen al 80%
+        bgMusic.play().then(() => {
+          console.log("Audio reproduciéndose con éxito.");
+        }).catch(err => {
+          console.log("Error de reproducción de audio:", err);
+        });
       }
-    }
+    });
 
     function updateView() {
       cards.forEach((card, index) => {
