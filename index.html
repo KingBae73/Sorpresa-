@@ -333,9 +333,10 @@
       <div class="envelope-card">
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
-        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que veas como te quiero.</p>
+        <p class="welcome-sub">Preparé este pequeño detalle para ti, para recordar algunos de los momentos más especiales que hemos compartido.</p>
         <p class="audio-note">Presiona el botón para comenzar (con el sonido del celular activado)</p>
         <button class="btn-start" id="btnStart">Abrir nuestra carta ✨</button>
+        <p class="audio-note" id="audioDebug" style="color: #ff8a8a; word-break: break-word;"></p>
       </div>
     </div>
 
@@ -491,7 +492,17 @@ te quiero mucho crismerli 💜</p>
     var bgMusic = document.getElementById('bgMusic');
     var btnStart = document.getElementById('btnStart');
     var musicToggle = document.getElementById('musicToggle');
+    var audioDebug = document.getElementById('audioDebug');
     var isPlaying = false;
+
+    // ---------------------------------------------------------
+    // ESTO DETECTA SI EL ARCHIVO musica.mp3 NI SIQUIERA CARGO
+    // (esto pasa cuando el nombre esta mal escrito, el archivo
+    // no se subio bien a GitHub, o el mp3 esta corrupto)
+    // ---------------------------------------------------------
+    bgMusic.addEventListener('error', function () {
+      audioDebug.textContent = 'ERROR: el archivo musica.mp3 no cargo. Revisa que el nombre este exacto y que el archivo se haya subido bien a GitHub.';
+    });
 
     // ---------------------------------------------------------
     // FUNCION PARA INTENTAR REPRODUCIR LA MUSICA
@@ -503,10 +514,11 @@ te quiero mucho crismerli 💜</p>
         promesaDeReproduccion.then(function () {
           isPlaying = true;
           musicToggle.textContent = '🔊';
+          audioDebug.textContent = '';
         }).catch(function (error) {
           isPlaying = false;
           musicToggle.textContent = '🔇';
-          console.log('No se pudo reproducir la musica automaticamente: ' + error);
+          audioDebug.textContent = 'ERROR AL REPRODUCIR: ' + error.name + ' - ' + error.message;
         });
       }
     }
