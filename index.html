@@ -35,27 +35,6 @@
       position: relative;
     }
 
-    /* BOTÓN FLOTANTE DE MÚSICA */
-    .music-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      z-index: 100;
-      background: rgba(18, 7, 43, 0.8);
-      border: 1px solid rgba(199, 125, 255, 0.4);
-      color: #e0aaff;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
-      backdrop-filter: blur(5px);
-    }
-
     /* PANTALLA DE BIENVENIDA (CARTA/SOBRE) */
     .welcome-screen {
       position: absolute;
@@ -315,17 +294,26 @@
       color: #7b2cbf;
       margin-top: 10px;
     }
+
+    /* REPRODUCTOR OCULTO DE RESPALDO (YOUTUBE) */
+    .hidden-player {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-  <!-- ELEMENTO DE AUDIO DE FONDO -->
+  <!-- ELEMENTO DE AUDIO MP3 LOCAL -->
   <audio id="bgMusic" loop playsinline preload="auto">
     <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- BOTÓN FLOTANTE PARA ACTIVAR/PAUSAR MÚSICA -->
-  <button class="music-toggle" id="musicToggle" title="Activar/Desactivar Música">🎵</button>
+  <!-- IFRAME DE RESPALDO POR SI EL BROWSER BLOQUEA EL MP3 -->
+  <div class="hidden-player" id="ytContainer"></div>
 
   <div class="container">
 
@@ -487,34 +475,20 @@ te quiero mucho crismerli 💜</p>
     const welcomeScreen = document.getElementById('welcomeScreen');
     const bgMusic = document.getElementById('bgMusic');
     const btnStart = document.getElementById('btnStart');
-    const musicToggle = document.getElementById('musicToggle');
-    let isPlaying = false;
-
-    function playAudio() {
-      if (bgMusic) {
-        bgMusic.play().then(() => {
-          isPlaying = true;
-          musicToggle.textContent = '🔊';
-        }).catch(err => {
-          console.log("Error al reproducir audio:", err);
-          isPlaying = false;
-          musicToggle.textContent = '🔇';
-        });
-      }
-    }
+    const ytContainer = document.getElementById('ytContainer');
 
     btnStart.addEventListener('click', function() {
       welcomeScreen.classList.add('hidden');
-      playAudio();
-    });
-
-    musicToggle.addEventListener('click', function() {
-      if (isPlaying) {
-        bgMusic.pause();
-        isPlaying = false;
-        musicToggle.textContent = '🔇';
-      } else {
-        playAudio();
+      
+      // Intentar reproducir el MP3 local
+      if (bgMusic) {
+        bgMusic.play().then(() => {
+          console.log("Audio MP3 reproducido correctamente.");
+        }).catch(err => {
+          console.log("Error MP3, activando respaldo YouTube...", err);
+          // Si falla el MP3 local por autoplay restrictions, se inserta el reproductor embebido de la canción en YouTube
+          ytContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/RkS4RylpT0U?autoplay=1&loop=1&playlist=RkS4RylpT0U" allow="autoplay"></iframe>`;
+        });
       }
     });
 
