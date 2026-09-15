@@ -35,25 +35,6 @@
       position: relative;
     }
 
-    .music-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      z-index: 100;
-      background: rgba(18, 7, 43, 0.8);
-      border: 1px solid rgba(199, 125, 255, 0.4);
-      color: #e0aaff;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
-    }
-
     .welcome-screen {
       position: absolute;
       top: 0;
@@ -318,22 +299,13 @@
 </head>
 <body>
 
-  <!-- ELEMENTO DE AUDIO DE FONDO -->
-  <!-- El nombre del archivo debe ser EXACTAMENTE musica.mp3, todo en minusculas -->
-  <audio id="bgMusic" loop playsinline preload="auto">
-    <source src="musica.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- BOTON FLOTANTE PARA ENCENDER O APAGAR LA MUSICA MANUALMENTE -->
-  <button class="music-toggle" id="musicToggle" title="Activar o pausar musica">🔇</button>
-
   <div class="container">
 
     <div class="welcome-screen" id="welcomeScreen">
       <div class="envelope-card">
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
-        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que sepas lo mucho que te quiero y porque se me dificukta alejarme de usted</p>
+        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que sepas lo mucho que te quiero y poruqe se me dificulta tanto alejarme de usted</p>
         <p class="audio-note"></p>
         <button class="btn-start" id="btnStart">Abrir nuestra carta ✨</button>
         <p class="audio-note" id="audioDebug" style="color: #ff8a8a; word-break: break-word;"></p>
@@ -489,9 +461,7 @@ te quiero mucho crismerli 💜</p>
     var prevBtn = document.getElementById('prevBtn');
     var nextBtn = document.getElementById('nextBtn');
     var welcomeScreen = document.getElementById('welcomeScreen');
-    var bgMusic = document.getElementById('bgMusic');
     var btnStart = document.getElementById('btnStart');
-    var musicToggle = document.getElementById('musicToggle');
     var audioDebug = document.getElementById('audioDebug');
     var isPlaying = false;
 
@@ -505,6 +475,7 @@ te quiero mucho crismerli 💜</p>
     var contextoDeAudio = null;
     var bufferDeMusica = null;
     var fuenteDeAudio = null;
+    var yaSeEstaCargandoLaMusica = false;
 
     function cargarYReproducirMusica() {
       var ClaseContextoDeAudio = window.AudioContext || window.webkitAudioContext;
@@ -513,10 +484,29 @@ te quiero mucho crismerli 💜</p>
         contextoDeAudio = new ClaseContextoDeAudio();
       }
 
+      // Si ya hay una copia de la musica sonando, la detenemos primero
+      // para que nunca se sumen dos o mas copias al mismo tiempo
+      if (fuenteDeAudio !== null) {
+        try {
+          fuenteDeAudio.stop();
+        } catch (errorAlDetener) {
+          // si ya estaba detenida no pasa nada, seguimos de largo
+        }
+        fuenteDeAudio.disconnect();
+        fuenteDeAudio = null;
+      }
+
+      // Si ya estamos en medio del proceso de cargar el archivo,
+      // no iniciamos una segunda carga al mismo tiempo
+      if (yaSeEstaCargandoLaMusica === true) {
+        return;
+      }
+
       contextoDeAudio.resume().then(function () {
         if (bufferDeMusica !== null) {
           reproducirBufferDeMusica();
         } else {
+          yaSeEstaCargandoLaMusica = true;
           fetch('musica.mp3')
             .then(function (respuesta) {
               if (respuesta.ok === false) {
@@ -529,9 +519,11 @@ te quiero mucho crismerli 💜</p>
             })
             .then(function (bufferDecodificado) {
               bufferDeMusica = bufferDecodificado;
+              yaSeEstaCargandoLaMusica = false;
               reproducirBufferDeMusica();
             })
             .catch(function (error) {
+              yaSeEstaCargandoLaMusica = false;
               audioDebug.textContent = 'ERROR cargando la musica: ' + error.message;
             });
         }
@@ -539,42 +531,41 @@ te quiero mucho crismerli 💜</p>
     }
 
     function reproducirBufferDeMusica() {
+      // Por seguridad, si ya hay una fuente sonando la detenemos
+      // antes de crear la nueva (esto evita el eco de varias copias)
+      if (fuenteDeAudio !== null) {
+        try {
+          fuenteDeAudio.stop();
+        } catch (errorAlDetener) {
+          // si ya estaba detenida no pasa nada
+        }
+        fuenteDeAudio.disconnect();
+      }
+
       fuenteDeAudio = contextoDeAudio.createBufferSource();
       fuenteDeAudio.buffer = bufferDeMusica;
       fuenteDeAudio.loop = true;
       fuenteDeAudio.connect(contextoDeAudio.destination);
       fuenteDeAudio.start(0);
       isPlaying = true;
-      musicToggle.textContent = '🔊';
       audioDebug.textContent = '';
     }
+
+    var laCartaYaFueAbierta = false;
 
     // ---------------------------------------------------------
     // EVENTO DEL BOTON "ABRIR NUESTRA CARTA"
     // ---------------------------------------------------------
     btnStart.addEventListener('click', function () {
-      welcomeScreen.classList.add('hidden');
-      cargarYReproducirMusica();
-    });
-
-    // ---------------------------------------------------------
-    // EVENTO DEL BOTON FLOTANTE PARA ENCENDER O PAUSAR LA MUSICA
-    // ---------------------------------------------------------
-    musicToggle.addEventListener('click', function () {
-      if (contextoDeAudio === null) {
-        cargarYReproducirMusica();
+      // Si el boton ya fue presionado antes, no hacemos nada mas
+      // esto evita que un doble toque cree musica duplicada
+      if (laCartaYaFueAbierta === true) {
         return;
       }
+      laCartaYaFueAbierta = true;
 
-      if (isPlaying === true) {
-        contextoDeAudio.suspend();
-        isPlaying = false;
-        musicToggle.textContent = '🔇';
-      } else {
-        contextoDeAudio.resume();
-        isPlaying = true;
-        musicToggle.textContent = '🔊';
-      }
+      welcomeScreen.classList.add('hidden');
+      cargarYReproducirMusica();
     });
 
     // ---------------------------------------------------------
