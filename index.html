@@ -35,7 +35,25 @@
       position: relative;
     }
 
-    /* PANTALLA DE BIENVENIDA (CARTA/SOBRE) */
+    .music-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 100;
+      background: rgba(18, 7, 43, 0.8);
+      border: 1px solid rgba(199, 125, 255, 0.4);
+      color: #e0aaff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+    }
+
     .welcome-screen {
       position: absolute;
       top: 0;
@@ -96,6 +114,12 @@
       line-height: 1.5;
     }
 
+    .audio-note {
+      font-size: 0.78rem;
+      color: #9d4edd;
+      margin-top: 6px;
+    }
+
     .btn-start {
       margin-top: 15px;
       width: 100%;
@@ -115,7 +139,6 @@
       transform: scale(0.95);
     }
 
-    /* Encabezado */
     .header {
       text-align: center;
       margin-top: 10px;
@@ -146,7 +169,6 @@
       letter-spacing: 1px;
     }
 
-    /* Tarjetas Interactivas */
     .cards-wrapper {
       width: 100%;
       position: relative;
@@ -215,7 +237,6 @@
       color: #d8b4fe;
     }
 
-    /* Navegación y Botones */
     .controls {
       width: 100%;
       display: flex;
@@ -255,7 +276,6 @@
       transform: scale(0.96);
     }
 
-    /* Carta Final de Compromiso */
     .final-card {
       text-align: center;
       padding: 25px 20px;
@@ -294,39 +314,31 @@
       color: #7b2cbf;
       margin-top: 10px;
     }
-
-    /* REPRODUCTOR OCULTO DE RESPALDO (YOUTUBE) */
-    .hidden-player {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
 
-  <!-- ELEMENTO DE AUDIO MP3 LOCAL -->
+  <!-- ELEMENTO DE AUDIO DE FONDO -->
+  <!-- El nombre del archivo debe ser EXACTAMENTE musica.mp3, todo en minusculas -->
   <audio id="bgMusic" loop playsinline preload="auto">
     <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- IFRAME DE RESPALDO POR SI EL BROWSER BLOQUEA EL MP3 -->
-  <div class="hidden-player" id="ytContainer"></div>
+  <!-- BOTON FLOTANTE PARA ENCENDER O APAGAR LA MUSICA MANUALMENTE -->
+  <button class="music-toggle" id="musicToggle" title="Activar o pausar musica">🔇</button>
 
   <div class="container">
 
-    <!-- PANTALLA INICIAL DE LA CARTA -->
     <div class="welcome-screen" id="welcomeScreen">
       <div class="envelope-card">
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
-        <p class="welcome-sub">Preparé este pequeño detalle para ti, para recordar algunos de los momentos más especiales que hemos compartido.</p>
+        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que veas como te quiero.</p>
+        <p class="audio-note">Presiona el botón para comenzar (con el sonido del celular activado)</p>
         <button class="btn-start" id="btnStart">Abrir nuestra carta ✨</button>
       </div>
     </div>
-    
+
     <div class="header">
       <h1>Nuestra Historia 💜</h1>
       <div class="header-sub">La vida es una mi amor</div>
@@ -466,45 +478,93 @@ te quiero mucho crismerli 💜</p>
   </div>
 
   <script>
-    let currentIndex = 0;
-    const cards = document.querySelectorAll('.card');
-    const totalCards = cards.length;
-    const counter = document.getElementById('counter');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    const bgMusic = document.getElementById('bgMusic');
-    const btnStart = document.getElementById('btnStart');
-    const ytContainer = document.getElementById('ytContainer');
+    // ---------------------------------------------------------
+    // VARIABLES PRINCIPALES
+    // ---------------------------------------------------------
+    var currentIndex = 0;
+    var cards = document.querySelectorAll('.card');
+    var totalCards = cards.length;
+    var counter = document.getElementById('counter');
+    var prevBtn = document.getElementById('prevBtn');
+    var nextBtn = document.getElementById('nextBtn');
+    var welcomeScreen = document.getElementById('welcomeScreen');
+    var bgMusic = document.getElementById('bgMusic');
+    var btnStart = document.getElementById('btnStart');
+    var musicToggle = document.getElementById('musicToggle');
+    var isPlaying = false;
 
-    btnStart.addEventListener('click', function() {
-      welcomeScreen.classList.add('hidden');
-      
-      // Intentar reproducir el MP3 local
-      if (bgMusic) {
-        bgMusic.play().then(() => {
-          console.log("Audio MP3 reproducido correctamente.");
-        }).catch(err => {
-          console.log("Error MP3, activando respaldo YouTube...", err);
-          // Si falla el MP3 local por autoplay restrictions, se inserta el reproductor embebido de la canción en YouTube
-          ytContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/RkS4RylpT0U?autoplay=1&loop=1&playlist=RkS4RylpT0U" allow="autoplay"></iframe>`;
+    // ---------------------------------------------------------
+    // FUNCION PARA INTENTAR REPRODUCIR LA MUSICA
+    // ---------------------------------------------------------
+    function intentarReproducirMusica() {
+      var promesaDeReproduccion = bgMusic.play();
+
+      if (promesaDeReproduccion !== undefined) {
+        promesaDeReproduccion.then(function () {
+          isPlaying = true;
+          musicToggle.textContent = '🔊';
+        }).catch(function (error) {
+          isPlaying = false;
+          musicToggle.textContent = '🔇';
+          console.log('No se pudo reproducir la musica automaticamente: ' + error);
         });
+      }
+    }
+
+    // ---------------------------------------------------------
+    // EVENTO DEL BOTON "ABRIR NUESTRA CARTA"
+    // Este clic es el que le da permiso al navegador para
+    // reproducir audio, por eso la musica se activa aqui mismo
+    // ---------------------------------------------------------
+    btnStart.addEventListener('click', function () {
+      welcomeScreen.classList.add('hidden');
+      bgMusic.muted = false;
+      bgMusic.volume = 1.0;
+      intentarReproducirMusica();
+    });
+
+    // ---------------------------------------------------------
+    // EVENTO DEL BOTON FLOTANTE PARA ENCENDER O PAUSAR LA MUSICA
+    // Sirve como respaldo por si el celular bloqueo el sonido
+    // automatico, asi ella puede activarlo con un solo toque
+    // ---------------------------------------------------------
+    musicToggle.addEventListener('click', function () {
+      if (isPlaying === true) {
+        bgMusic.pause();
+        isPlaying = false;
+        musicToggle.textContent = '🔇';
+      } else {
+        bgMusic.muted = false;
+        bgMusic.volume = 1.0;
+        intentarReproducirMusica();
       }
     });
 
+    // ---------------------------------------------------------
+    // FUNCIONES DE NAVEGACION ENTRE TARJETAS (sin cambios)
+    // ---------------------------------------------------------
     function updateView() {
-      cards.forEach((card, index) => {
-        card.classList.toggle('active', index === currentIndex);
-      });
+      for (var i = 0; i < cards.length; i++) {
+        if (i === currentIndex) {
+          cards[i].classList.add('active');
+        } else {
+          cards[i].classList.remove('active');
+        }
+      }
 
       if (currentIndex === totalCards - 1) {
         counter.textContent = "Carta Final ✨";
       } else {
-        counter.textContent = `Tarjeta ${currentIndex + 1} de ${totalCards - 1}`;
+        counter.textContent = "Tarjeta " + (currentIndex + 1) + " de " + (totalCards - 1);
       }
 
-      prevBtn.style.opacity = currentIndex === 0 ? "0.4" : "1";
-      prevBtn.style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+      if (currentIndex === 0) {
+        prevBtn.style.opacity = "0.4";
+        prevBtn.style.pointerEvents = "none";
+      } else {
+        prevBtn.style.opacity = "1";
+        prevBtn.style.pointerEvents = "auto";
+      }
 
       if (currentIndex === totalCards - 1) {
         nextBtn.style.display = "none";
@@ -514,9 +574,13 @@ te quiero mucho crismerli 💜</p>
     }
 
     function changeCard(direction) {
-      currentIndex += direction;
-      if (currentIndex < 0) currentIndex = 0;
-      if (currentIndex >= totalCards) currentIndex = totalCards - 1;
+      currentIndex = currentIndex + direction;
+      if (currentIndex < 0) {
+        currentIndex = 0;
+      }
+      if (currentIndex >= totalCards) {
+        currentIndex = totalCards - 1;
+      }
       updateView();
     }
 
