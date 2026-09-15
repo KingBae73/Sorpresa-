@@ -333,7 +333,7 @@
       <div class="envelope-card">
         <div class="envelope-icon">💌</div>
         <h2 class="welcome-title">Para Crismerli 💜</h2>
-        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que sepa lo mucho que la quiero y porque se me dificulta alejarme</p>
+        <p class="welcome-sub">Preparé este pequeño detalle para ti, para que sepas lo mucho que te quiero y porque se me dificukta alejarme de usted</p>
         <p class="audio-note"></p>
         <button class="btn-start" id="btnStart">Abrir nuestra carta ✨</button>
         <p class="audio-note" id="audioDebug" style="color: #ff8a8a; word-break: break-word;"></p>
@@ -496,59 +496,84 @@ te quiero mucho crismerli 💜</p>
     var isPlaying = false;
 
     // ---------------------------------------------------------
-    // ESTO DETECTA SI EL ARCHIVO musica.mp3 NI SIQUIERA CARGO
-    // (esto pasa cuando el nombre esta mal escrito, el archivo
-    // no se subio bien a GitHub, o el mp3 esta corrupto)
+    // NUEVO SISTEMA DE AUDIO USANDO WEB AUDIO API
+    // El tag <audio> normal a veces lo silencia el switch fisico
+    // del iPhone aunque el celular no este en modo silencio.
+    // La Web Audio API reproduce el sonido de otra forma que
+    // no depende de eso, y es mas confiable en iOS.
     // ---------------------------------------------------------
-    bgMusic.addEventListener('error', function () {
-      audioDebug.textContent = 'ERROR: el archivo musica.mp3 no cargo. Revisa que el nombre este exacto y que el archivo se haya subido bien a GitHub.';
-    });
+    var contextoDeAudio = null;
+    var bufferDeMusica = null;
+    var fuenteDeAudio = null;
 
-    // ---------------------------------------------------------
-    // FUNCION PARA INTENTAR REPRODUCIR LA MUSICA
-    // ---------------------------------------------------------
-    function intentarReproducirMusica() {
-      var promesaDeReproduccion = bgMusic.play();
+    function cargarYReproducirMusica() {
+      var ClaseContextoDeAudio = window.AudioContext || window.webkitAudioContext;
 
-      if (promesaDeReproduccion !== undefined) {
-        promesaDeReproduccion.then(function () {
-          isPlaying = true;
-          musicToggle.textContent = '🔊';
-          audioDebug.textContent = '';
-        }).catch(function (error) {
-          isPlaying = false;
-          musicToggle.textContent = '🔇';
-          audioDebug.textContent = 'ERROR AL REPRODUCIR: ' + error.name + ' - ' + error.message;
-        });
+      if (contextoDeAudio === null) {
+        contextoDeAudio = new ClaseContextoDeAudio();
       }
+
+      contextoDeAudio.resume().then(function () {
+        if (bufferDeMusica !== null) {
+          reproducirBufferDeMusica();
+        } else {
+          fetch('musica.mp3')
+            .then(function (respuesta) {
+              if (respuesta.ok === false) {
+                throw new Error('El archivo musica.mp3 no se encontro (revisa el nombre en GitHub)');
+              }
+              return respuesta.arrayBuffer();
+            })
+            .then(function (datosCrudos) {
+              return contextoDeAudio.decodeAudioData(datosCrudos);
+            })
+            .then(function (bufferDecodificado) {
+              bufferDeMusica = bufferDecodificado;
+              reproducirBufferDeMusica();
+            })
+            .catch(function (error) {
+              audioDebug.textContent = 'ERROR cargando la musica: ' + error.message;
+            });
+        }
+      });
+    }
+
+    function reproducirBufferDeMusica() {
+      fuenteDeAudio = contextoDeAudio.createBufferSource();
+      fuenteDeAudio.buffer = bufferDeMusica;
+      fuenteDeAudio.loop = true;
+      fuenteDeAudio.connect(contextoDeAudio.destination);
+      fuenteDeAudio.start(0);
+      isPlaying = true;
+      musicToggle.textContent = '🔊';
+      audioDebug.textContent = '';
     }
 
     // ---------------------------------------------------------
     // EVENTO DEL BOTON "ABRIR NUESTRA CARTA"
-    // Este clic es el que le da permiso al navegador para
-    // reproducir audio, por eso la musica se activa aqui mismo
     // ---------------------------------------------------------
     btnStart.addEventListener('click', function () {
       welcomeScreen.classList.add('hidden');
-      bgMusic.muted = false;
-      bgMusic.volume = 1.0;
-      intentarReproducirMusica();
+      cargarYReproducirMusica();
     });
 
     // ---------------------------------------------------------
     // EVENTO DEL BOTON FLOTANTE PARA ENCENDER O PAUSAR LA MUSICA
-    // Sirve como respaldo por si el celular bloqueo el sonido
-    // automatico, asi ella puede activarlo con un solo toque
     // ---------------------------------------------------------
     musicToggle.addEventListener('click', function () {
+      if (contextoDeAudio === null) {
+        cargarYReproducirMusica();
+        return;
+      }
+
       if (isPlaying === true) {
-        bgMusic.pause();
+        contextoDeAudio.suspend();
         isPlaying = false;
         musicToggle.textContent = '🔇';
       } else {
-        bgMusic.muted = false;
-        bgMusic.volume = 1.0;
-        intentarReproducirMusica();
+        contextoDeAudio.resume();
+        isPlaying = true;
+        musicToggle.textContent = '🔊';
       }
     });
 
