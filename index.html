@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Crismerli 💜</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #07040d;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #1a0b2e 0%, #07040d 100%);
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* ---------- PANTALLA DE BIENVENIDA ---------- */
+.welcome-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top, #1a0b2e 0%, #07040d 100%);
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.welcome-screen.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+}
+
+.envelope-card {
+    width: 100%;
+    background: #12072b;
+    border: 1px solid rgba(199, 125, 255, 0.4);
+    border-radius: 24px;
+    padding: 35px 20px;
+    box-shadow: 0 0 35px rgba(138, 43, 226, 0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.envelope-icon {
+    font-size: 3.8rem;
+    animation: pulse 2s infinite ease-in-out;
+    margin-bottom: 5px;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.welcome-title {
+    font-size: 1.5rem;
+    color: #e0aaff;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(199, 125, 255, 0.5);
+}
+
+.welcome-sub {
+    font-size: 0.95rem;
+    color: #d8b4fe;
+    line-height: 1.5;
+}
+
+.audio-error {
+    font-size: 0.78rem;
+    color: #ff8a8a;
+    word-break: break-word;
+}
+
+.btn-start {
+    margin-top: 15px;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(157, 78, 221, 0.5);
+    transition: transform 0.2s ease;
+}
+
+.btn-start:active {
+    transform: scale(0.95);
+}
+
+/* ---------- ENCABEZADO ---------- */
+.header {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    font-size: 1.6rem;
+    color: #c77dff;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(199, 125, 255, 0.4);
+}
+
+.header-sub {
+    font-size: 0.95rem;
+    color: #e0aaff;
+    font-weight: 600;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+.progress-bar-text {
+    font-size: 0.8rem;
+    color: #9d4edd;
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ---------- TARJETAS ---------- */
+.cards-wrapper {
+    width: 100%;
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.card {
+    width: 100%;
+    background: #12072b;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    box-shadow: 0 10px 30px rgba(138, 43, 226, 0.25);
+    display: none;
+    animation: fadeIn 0.4s ease-in-out forwards;
+}
+
+.card.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card img, .card video {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+}
+
+.card-content {
+    padding: 20px;
+    background: linear-gradient(180deg, #12072b 0%, #0c041d 100%);
+}
+
+.card-tag {
+    display: inline-block;
+    background: rgba(157, 78, 221, 0.2);
+    color: #e0aaff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(199, 125, 255, 0.3);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* ---------- CONTROLES ---------- */
+.controls {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-prev {
+    background: #1e0a3b;
+    color: #c77dff;
+    border: 1px solid rgba(157, 78, 221, 0.4);
+}
+
+.btn-next {
+    background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+/* ---------- CARTA FINAL ---------- */
+.final-card {
+    text-align: center;
+    padding: 35px 20px;
+}
+
+.final-card h2 {
+    font-size: 1.4rem;
+    color: #e0aaff;
+    margin-bottom: 18px;
+    text-shadow: 0 0 8px rgba(199, 125, 255, 0.5);
+}
+
+.final-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #e2d1f9;
+    margin-bottom: 26px;
+}
+
+.btn-whatsapp {
+    display: inline-block;
+    width: 100%;
+    background-color: #25d366;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 15px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
+}
+
+footer {
+    font-size: 0.75rem;
+    color: #7b2cbf;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- PANTALLA DE BIENVENIDA -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="envelope-card">
+            <div class="envelope-icon">💌</div>
+            <h2 class="welcome-title">Para Crismerli 💜</h2>
+            <p class="welcome-sub">Preparé este pequeño detalle para ti, para que sepas lo mucho que te quiero y porque se me dificulta tanto alejarme de usted</p>
+            <button class="btn-start" id="btnStart">Abrir por si un día se te olvida quién eres ✨</button>
+            <p class="audio-error" id="audioDebug"></p>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO -->
+    <div class="header">
+        <h1>Nuestra historia 💜</h1>
+        <div class="header-sub">La vida es una, mi amor</div>
+        <div class="progress-bar-text" id="counter">Tarjeta 1 de 9</div>
+    </div>
+
+    <!-- TARJETAS -->
+    <div class="cards-wrapper">
+
+        <div class="card active">
+            <video autoplay loop muted playsinline controls preload="metadata">
+                <source src="video1.mp4" type="video/mp4">
+            </video>
+            <div class="card-content">
+                <span class="card-tag">Momento I</span>
+                <h3 class="card-title">Tu Sonrisa</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <video loop muted playsinline controls preload="metadata">
+                <source src="video2.mp4" type="video/mp4">
+            </video>
+            <div class="card-content">
+                <span class="card-tag">Momento II</span>
+                <h3 class="card-title">Tu Alegría</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <video loop muted playsinline controls preload="metadata">
+                <source src="1.mp4" type="video/mp4">
+            </video>
+            <div class="card-content">
+                <span class="card-tag">Momento III</span>
+                <h3 class="card-title">Las Noches</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <video loop muted playsinline controls preload="metadata">
+                <source src="2.mp4" type="video/mp4">
+            </video>
+            <div class="card-content">
+                <span class="card-tag">Momento IV</span>
+                <h3 class="card-title">Eres loca</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="3.jpeg" alt="Ella con gorra" loading="lazy">
+            <div class="card-content">
+                <span class="card-tag">Momento V</span>
+                <h3 class="card-title">Admiro tu forma de ser</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="5.jpeg" alt="Ella sentada" loading="lazy">
+            <div class="card-content">
+                <span class="card-tag">Momento VI</span>
+                <h3 class="card-title">Lo Hermosa Que Eres</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="4.jpeg" alt="Comiendo helado" loading="lazy">
+            <div class="card-content">
+                <span class="card-tag">Momento VII</span>
+                <h3 class="card-title">Los Pequeños Detalles</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="6.jpeg" alt="En el carro de noche" loading="lazy">
+            <div class="card-content">
+                <span class="card-tag">Momento VIII</span>
+                <h3 class="card-title">Mi Compañera</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="7.jpeg" alt="Vista al mar de noche" loading="lazy">
+            <div class="card-content">
+                <span class="card-tag">Momento IX</span>
+                <h3 class="card-title">Paz</h3>
+            </div>
+        </div>
+
+        <!-- CARTA FINAL -->
+        <div class="card">
+            <div class="card-content final-card">
+                <h2>Lo Que Siento Por Ti 💜</h2>
+                <p>Te quiero mucho Crismerli 💜</p>
+                <a class="btn-whatsapp" href="https://wa.me/18296655918?text=Gracias%20mi%20amor,%20me%20encant%C3%B3%20el%20detalle%20💜" target="_blank" rel="noopener">
+                    Escríbeme al WhatsApp 📲
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="controls">
+        <button class="btn btn-prev" id="prevBtn" onclick="changeCard(-1)">◀ Anterior</button>
+        <button class="btn btn-next" id="nextBtn" onclick="changeCard(1)">Siguiente ➔</button>
+    </div>
+
+    <footer>Hecho exclusivamente para ti ✨</footer>
+
+</div>
+
+<script>
+// ---------------------------------------------------------
+// VARIABLES PRINCIPALES
+// ---------------------------------------------------------
+var currentIndex = 0;
+var cards = document.querySelectorAll('.card');
+var totalCards = cards.length;
+var counter = document.getElementById('counter');
+var prevBtn = document.getElementById('prevBtn');
+var nextBtn = document.getElementById('nextBtn');
+var welcomeScreen = document.getElementById('welcomeScreen');
+var btnStart = document.getElementById('btnStart');
+var audioDebug = document.getElementById('audioDebug');
+var isPlaying = false;
+
+// ---------------------------------------------------------
+// SISTEMA DE AUDIO USANDO WEB AUDIO API
+// El tag <audio> normal a veces lo silencia el switch físico
+// del iPhone. La Web Audio API es más confiable en iOS.
+// ---------------------------------------------------------
+var contextoDeAudio = null;
+var bufferDeMusica = null;
+var fuenteDeAudio = null;
+var yaSeEstaCargandoLaMusica = false;
+
+function detenerFuenteDeAudio() {
+    if (fuenteDeAudio !== null) {
+        try {
+            fuenteDeAudio.stop();
+        } catch (errorAlDetener) {
+            // si ya estaba detenida no pasa nada
+        }
+        fuenteDeAudio.disconnect();
+        fuenteDeAudio = null;
+    }
+}
+
+function reproducirBufferDeMusica() {
+    // Evita que se sumen varias copias de la música
+    detenerFuenteDeAudio();
+
+    fuenteDeAudio = contextoDeAudio.createBufferSource();
+    fuenteDeAudio.buffer = bufferDeMusica;
+    fuenteDeAudio.loop = true;
+    fuenteDeAudio.connect(contextoDeAudio.destination);
+    fuenteDeAudio.start(0);
+
+    isPlaying = true;
+    audioDebug.textContent = '';
+}
+
+function cargarYReproducirMusica() {
+    var ClaseContextoDeAudio = window.AudioContext || window.webkitAudioContext;
+
+    if (contextoDeAudio === null) {
+        contextoDeAudio = new ClaseContextoDeAudio();
+    }
+
+    // Si ya estamos cargando el archivo, no iniciamos otra carga
+    if (yaSeEstaCargandoLaMusica === true) {
+        return;
+    }
+
+    contextoDeAudio.resume().then(function () {
+        if (bufferDeMusica !== null) {
+            reproducirBufferDeMusica();
+        } else {
+            yaSeEstaCargandoLaMusica = true;
+
+            fetch('musica.mp3')
+                .then(function (respuesta) {
+                    if (respuesta.ok === false) {
+                        throw new Error('El archivo musica.mp3 no se encontró (revisa el nombre en GitHub)');
+                    }
+                    return respuesta.arrayBuffer();
+                })
+                .then(function (datosCrudos) {
+                    return contextoDeAudio.decodeAudioData(datosCrudos);
+                })
+                .then(function (bufferDecodificado) {
+                    bufferDeMusica = bufferDecodificado;
+                    yaSeEstaCargandoLaMusica = false;
+                    reproducirBufferDeMusica();
+                })
+                .catch(function (error) {
+                    yaSeEstaCargandoLaMusica = false;
+                    audioDebug.textContent = 'ERROR cargando la música: ' + error.message;
+                });
+        }
+    });
+}
+
+var laCartaYaFueAbierta = false;
+
+// ---------------------------------------------------------
+// EVENTO DEL BOTÓN DE LA PANTALLA DE BIENVENIDA
+// ---------------------------------------------------------
+btnStart.addEventListener('click', function () {
+    // Evita que un doble toque cree música duplicada
+    if (laCartaYaFueAbierta === true) {
+        return;
+    }
+    laCartaYaFueAbierta = true;
+
+    welcomeScreen.classList.add('hidden');
+    cargarYReproducirMusica();
+});
+
+// ---------------------------------------------------------
+// CONTROL DE VIDEOS: solo se reproduce el de la tarjeta activa
+// ---------------------------------------------------------
+function actualizarVideos() {
+    for (var i = 0; i < cards.length; i++) {
+        var videoDeLaTarjeta = cards[i].querySelector('video');
+
+        if (videoDeLaTarjeta !== null) {
+            if (i === currentIndex) {
+                videoDeLaTarjeta.currentTime = 0;
+                var promesaDeReproduccion = videoDeLaTarjeta.play();
+                if (promesaDeReproduccion !== undefined) {
+                    promesaDeReproduccion.catch(function () {
+                        // Si el navegador bloquea el autoplay, no pasa nada:
+                        // la persona puede darle play con los controles
+                    });
+                }
+            } else {
+                videoDeLaTarjeta.pause();
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------
+// NAVEGACIÓN ENTRE TARJETAS
+// ---------------------------------------------------------
+function updateView() {
+    for (var i = 0; i < cards.length; i++) {
+        if (i === currentIndex) {
+            cards[i].classList.add('active');
+        } else {
+            cards[i].classList.remove('active');
+        }
+    }
+
+    if (currentIndex === totalCards - 1) {
+        counter.textContent = "Carta Final ✨";
+    } else {
+        counter.textContent = "Tarjeta " + (currentIndex + 1) + " de " + (totalCards - 1);
+    }
+
+    if (currentIndex === 0) {
+        prevBtn.style.opacity = "0.4";
+        prevBtn.style.pointerEvents = "none";
+    } else {
+        prevBtn.style.opacity = "1";
+        prevBtn.style.pointerEvents = "auto";
+    }
+
+    if (currentIndex === totalCards - 1) {
+        nextBtn.style.display = "none";
+    } else {
+        nextBtn.style.display = "flex";
+    }
+
+    actualizarVideos();
+}
+
+function changeCard(direction) {
+    currentIndex = currentIndex + direction;
+
+    if (currentIndex < 0) {
+        currentIndex = 0;
+    }
+
+    if (currentIndex >= totalCards) {
+        currentIndex = totalCards - 1;
+    }
+
+    updateView();
+}
+
+updateView();
+</script>
+
+</body>
+</html>
