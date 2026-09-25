@@ -493,7 +493,10 @@ function cargarYReproducirMusica() {
         } else {
             yaSeEstaCargandoLaMusica = true;
 
-            fetch('musica.mp3')
+            // El "cache: no-store" evita que el navegador se quede
+            // pegado a una copia vieja guardada del archivo musica.mp3
+            // cuando se sube una canción nueva con el mismo nombre
+            fetch('musica.mp3', { cache: 'no-store' })
                 .then(function (respuesta) {
                     if (respuesta.ok === false) {
                         throw new Error('El archivo musica.mp3 no se encontró (revisa el nombre en GitHub)');
